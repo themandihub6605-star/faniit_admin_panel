@@ -1,6 +1,6 @@
 import { type PropsWithChildren, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users2, ShieldCheck, Building2, Percent, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, Users2, ShieldCheck, Building2, Percent, ShieldAlert, Receipt, Tag, Flag, Wallet, Megaphone, Settings, UserCog, KeyRound, LogOut, Menu } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/cn';
@@ -11,6 +11,15 @@ const NAV = [
   { href: '/verifications', label: 'Verifications', icon: ShieldCheck },
   { href: '/agencies', label: 'Agencies', icon: Building2 },
   { href: '/referral-config', label: 'Referral Commission', icon: Percent },
+  { href: '/escrow-disputes', label: 'Escrow Disputes', icon: ShieldAlert },
+  { href: '/transactions', label: 'Transactions', icon: Receipt },
+  { href: '/categories', label: 'Categories', icon: Tag },
+  { href: '/moderation', label: 'Content Moderation', icon: Flag },
+  { href: '/withdrawals', label: 'Withdrawals', icon: Wallet },
+  { href: '/broadcast', label: 'Broadcast', icon: Megaphone },
+  { href: '/settings', label: 'Site Settings', icon: Settings },
+  { href: '/admins', label: 'Admin Accounts', icon: UserCog },
+  { href: '/change-password', label: 'Change Password', icon: KeyRound },
 ];
 
 export function AdminLayout({ children }: PropsWithChildren) {

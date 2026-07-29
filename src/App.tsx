@@ -13,6 +13,16 @@ import AdminUsers from '@/pages/AdminUsers';
 import AdminVerifications from '@/pages/AdminVerifications';
 import AdminAgencies from '@/pages/AdminAgencies';
 import AdminReferralConfig from '@/pages/AdminReferralConfig';
+import AdminEscrowDisputes from '@/pages/AdminEscrowDisputes';
+import AdminTransactions from '@/pages/AdminTransactions';
+import AdminCategories from '@/pages/AdminCategories';
+import AdminModeration from '@/pages/AdminModeration';
+import AdminWithdrawals from '@/pages/AdminWithdrawals';
+import AdminBroadcast from '@/pages/AdminBroadcast';
+import AdminSiteSettings from '@/pages/AdminSiteSettings';
+import AdminUserDetail from '@/pages/AdminUserDetail';
+import AdminAdmins from '@/pages/AdminAdmins';
+import AdminChangePassword from '@/pages/AdminChangePassword';
 
 function useAuthHydration() {
   const dispatch = useAppDispatch();
@@ -65,9 +75,19 @@ export default function App() {
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/" element={<Shell><PageTransition><AdminDashboard /></PageTransition></Shell>} />
         <Route path="/users" element={<Shell><PageTransition><AdminUsers /></PageTransition></Shell>} />
+        <Route path="/users/:id" element={<Shell><PageTransition><AdminUserDetail /></PageTransition></Shell>} />
         <Route path="/verifications" element={<Shell><PageTransition><AdminVerifications /></PageTransition></Shell>} />
         <Route path="/agencies" element={<Shell><PageTransition><AdminAgencies /></PageTransition></Shell>} />
         <Route path="/referral-config" element={<Shell><PageTransition><AdminReferralConfig /></PageTransition></Shell>} />
+        <Route path="/escrow-disputes" element={<Shell><PageTransition><AdminEscrowDisputes /></PageTransition></Shell>} />
+        <Route path="/transactions" element={<Shell><PageTransition><AdminTransactions /></PageTransition></Shell>} />
+        <Route path="/categories" element={<Shell><PageTransition><AdminCategories /></PageTransition></Shell>} />
+        <Route path="/moderation" element={<Shell><PageTransition><AdminModeration /></PageTransition></Shell>} />
+        <Route path="/withdrawals" element={<Shell><PageTransition><AdminWithdrawals /></PageTransition></Shell>} />
+        <Route path="/broadcast" element={<Shell><PageTransition><AdminBroadcast /></PageTransition></Shell>} />
+        <Route path="/settings" element={<Shell><PageTransition><AdminSiteSettings /></PageTransition></Shell>} />
+        <Route path="/admins" element={<Shell><PageTransition><AdminAdmins /></PageTransition></Shell>} />
+        <Route path="/change-password" element={<Shell><PageTransition><AdminChangePassword /></PageTransition></Shell>} />
       </Routes>
     </AnimatePresence>
   );

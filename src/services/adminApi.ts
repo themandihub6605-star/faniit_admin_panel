@@ -13,6 +13,14 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface UserDetail {
+  user: AdminUser & { phone?: string; walletBalance?: number; referralCode?: string; lastLoginAt?: string };
+  roleProfile: Record<string, unknown> | null;
+  transactions: AdminTransaction[];
+  reviews: { _id: string; rating: number; comment: string; createdAt: string; fromUser?: { name: string } }[];
+  referredCount: number;
+}
+
 export interface AdminAnalytics {
   totalUsers: number;
   totalCreators: number;
@@ -23,6 +31,85 @@ export interface AdminAnalytics {
   totalPlatformCommission: number;
   totalInEscrow: number;
   monthlyRevenue: { _id: { year: number; month: number }; total: number }[];
+}
+
+export interface DisputedCampaign {
+  _id: string;
+  title: string;
+  budget: number;
+  status: string;
+  brand: { companyName: string; user?: { name: string; email: string } };
+  assignedCreator?: { user?: { name: string; email: string } } | null;
+  createdAt: string;
+}
+
+export interface AdminWithdrawal {
+  _id: string;
+  amount: number;
+  payoutMethod: 'upi' | 'bank';
+  payoutDetails: string;
+  status: 'pending' | 'paid' | 'rejected';
+  adminNote?: string;
+  createdAt: string;
+  user?: { name: string; email: string; role: string };
+}
+
+export interface SiteSettings {
+  platformCommissionPercent: number;
+  supportEmail: string;
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  homepageBannerText: string;
+}
+
+export interface AdminCategory {
+  _id: string;
+  label: string;
+  slug: string;
+  icon: string;
+  isActive: boolean;
+}
+
+export interface AdminSession {
+  _id: string;
+  title: string;
+  scheduledAt: string;
+  isCancelled: boolean;
+  creator?: { user?: { name: string; email: string } };
+}
+
+export interface AdminCampaign {
+  _id: string;
+  title: string;
+  budget: number;
+  status: string;
+  createdAt: string;
+  brand?: { companyName: string; user?: { name: string; email: string } };
+}
+
+export interface AdminReview {
+  _id: string;
+  rating: number;
+  comment: string;
+  isFlagged: boolean;
+  isHidden: boolean;
+  createdAt: string;
+  fromUser?: { name: string; email: string };
+  toUser?: { name: string; email: string };
+}
+
+export interface AdminTransaction {
+  _id: string;
+  type: string;
+  status: string;
+  amount: number;
+  platformCommission?: number;
+  agencyCommission?: number;
+  referralCommission?: number;
+  netAmount?: number;
+  from?: { name: string; email: string } | null;
+  to?: { name: string; email: string } | null;
+  createdAt: string;
 }
 
 export interface PendingVerifications {
@@ -61,4 +148,65 @@ export const adminApi = {
 
   verifyBrand: (id: string, decision: 'verified' | 'rejected') =>
     apiClient.patch(`/admin/verifications/brand/${id}`, { decision }).then((r) => r.data.data),
+
+  listDisputedEscrows: () =>
+    apiClient.get<ApiEnvelope<DisputedCampaign[]>>('/admin/disputes/escrow').then((r) => r.data.data),
+
+  releaseEscrow: (campaignId: string) =>
+    apiClient.post(`/admin/escrow/${campaignId}/release`).then((r) => r.data.data),
+
+  refundEscrow: (campaignId: string) =>
+    apiClient.post(`/admin/escrow/${campaignId}/refund`).then((r) => r.data.data),
+
+  listAllTransactions: (params: { type?: string; status?: string; page?: number; limit?: number } = {}) =>
+    apiClient
+      .get<ApiEnvelope<{ transactions: AdminTransaction[]; total: number; page: number; pages: number }>>('/admin/transactions', { params })
+      .then((r) => r.data.data),
+
+  listCategories: () => apiClient.get<ApiEnvelope<AdminCategory[]>>('/admin/categories').then((r) => r.data.data),
+
+  createCategory: (payload: { label: string; icon: string }) =>
+    apiClient.post<ApiEnvelope<AdminCategory>>('/admin/categories', payload).then((r) => r.data.data),
+
+  updateCategory: (id: string, payload: Partial<{ label: string; icon: string; isActive: boolean }>) =>
+    apiClient.patch<ApiEnvelope<AdminCategory>>(`/admin/categories/${id}`, payload).then((r) => r.data.data),
+
+  deleteCategory: (id: string) => apiClient.delete(`/admin/categories/${id}`).then((r) => r.data.data),
+
+  listAllSessions: () => apiClient.get<ApiEnvelope<AdminSession[]>>('/admin/sessions').then((r) => r.data.data),
+
+  removeSession: (id: string) => apiClient.patch(`/admin/sessions/${id}/remove`).then((r) => r.data.data),
+
+  listAllCampaigns: () => apiClient.get<ApiEnvelope<AdminCampaign[]>>('/admin/campaigns').then((r) => r.data.data),
+
+  listAllReviews: (flaggedOnly?: boolean) =>
+    apiClient.get<ApiEnvelope<AdminReview[]>>('/admin/reviews', { params: { flaggedOnly } }).then((r) => r.data.data),
+
+  hideReview: (id: string) => apiClient.patch(`/admin/reviews/${id}/hide`).then((r) => r.data.data),
+
+  listWithdrawals: (status?: string) =>
+    apiClient.get<ApiEnvelope<AdminWithdrawal[]>>('/admin/withdrawals', { params: { status } }).then((r) => r.data.data),
+
+  markWithdrawalPaid: (id: string) => apiClient.patch<ApiEnvelope<AdminWithdrawal>>(`/admin/withdrawals/${id}/paid`).then((r) => r.data.data),
+
+  rejectWithdrawal: (id: string, reason?: string) =>
+    apiClient.patch<ApiEnvelope<AdminWithdrawal>>(`/admin/withdrawals/${id}/reject`, { reason }).then((r) => r.data.data),
+
+  getSiteSettings: () => apiClient.get<ApiEnvelope<SiteSettings>>('/admin/settings').then((r) => r.data.data),
+
+  updateSiteSettings: (payload: Partial<SiteSettings>) =>
+    apiClient.patch<ApiEnvelope<SiteSettings>>('/admin/settings', payload).then((r) => r.data.data),
+
+  broadcastNotification: (payload: { title: string; message: string; role?: string }) =>
+    apiClient.post<ApiEnvelope<{ sentTo: number }>>('/admin/notifications/broadcast', payload).then((r) => r.data.data),
+
+  getUserDetail: (id: string) => apiClient.get<ApiEnvelope<UserDetail>>(`/admin/users/${id}`).then((r) => r.data.data),
+
+  listAdmins: () => apiClient.get<ApiEnvelope<AdminUser[]>>('/admin/admins').then((r) => r.data.data),
+
+  createAdmin: (payload: { name: string; email: string; password: string }) =>
+    apiClient.post<ApiEnvelope<AdminUser>>('/admin/admins', payload).then((r) => r.data.data),
+
+  changeMyPassword: (currentPassword: string, newPassword: string) =>
+    apiClient.patch('/users/me/password', { currentPassword, newPassword }),
 };

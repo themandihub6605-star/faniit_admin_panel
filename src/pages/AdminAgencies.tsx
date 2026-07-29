@@ -144,7 +144,11 @@ export default function AdminAgencyApprovals() {
                         {agency.city && (
                           <span className="flex items-center gap-1"><MapPin size={11} /> {agency.city}{agency.state ? `, ${agency.state}` : ''}</span>
                         )}
-                        {agency.documentUrl && <span className="text-emerald-400">Document uploaded</span>}
+                        {agency.documentUrl && (
+                          <a href={agency.documentUrl} target="_blank" rel="noreferrer" className="text-sky-400 underline hover:text-sky-300">
+                            View Document
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
