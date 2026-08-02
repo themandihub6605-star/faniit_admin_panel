@@ -76,16 +76,16 @@ export default function AdminVerifications() {
                 {data.pendingCreators.map((c) => (
                   <div key={c._id} className="rounded-2xl border border-white/10 bg-navy-800/60 p-4">
                     <div className="flex items-center gap-3">
-                      {c.user.avatarUrl ? (
+                      {c.user?.avatarUrl ? (
                         <img src={c.user.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
                       ) : (
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/20 text-sm font-bold text-orange-300">
-                          {c.user.name.charAt(0).toUpperCase()}
+                          {(c.user?.name || '?').charAt(0).toUpperCase()}
                         </span>
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-bold text-white">{c.user.name}</p>
-                        <p className="truncate text-xs text-white/50">{c.user.email}</p>
+                        <p className="truncate font-bold text-white">{c.user?.name || 'Unknown user'}</p>
+                        <p className="truncate text-xs text-white/50">{c.user?.email || '—'}</p>
                       </div>
                     </div>
                     {c.category?.label && <p className="mt-2 text-xs text-white/40">Category: {c.category.label}</p>}
@@ -123,16 +123,16 @@ export default function AdminVerifications() {
                 {data.pendingBrands.map((b) => (
                   <div key={b._id} className="rounded-2xl border border-white/10 bg-navy-800/60 p-4">
                     <div className="flex items-center gap-3">
-                      {b.user.avatarUrl ? (
+                      {b.user?.avatarUrl ? (
                         <img src={b.user.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
                       ) : (
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/20 text-sm font-bold text-sky-300">
-                          {b.companyName.charAt(0).toUpperCase()}
+                          {(b.companyName || '?').charAt(0).toUpperCase()}
                         </span>
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-bold text-white">{b.companyName}</p>
-                        <p className="truncate text-xs text-white/50">{b.user.email}</p>
+                        <p className="truncate font-bold text-white">{b.companyName || 'Unknown brand'}</p>
+                        <p className="truncate text-xs text-white/50">{b.user?.email || '—'}</p>
                       </div>
                     </div>
                     {b.industry && <p className="mt-2 text-xs text-white/40">Industry: {b.industry}</p>}
