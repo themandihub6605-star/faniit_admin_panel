@@ -31,6 +31,7 @@ export interface AdminAnalytics {
   totalPlatformCommission: number;
   totalInEscrow: number;
   monthlyRevenue: { _id: { year: number; month: number }; total: number }[];
+  activeSubscriptionsByPlan?: { _id: string; count: number }[];
 }
 
 export interface DisputedCampaign {
@@ -60,6 +61,7 @@ export interface SiteSettings {
   maintenanceMode: boolean;
   maintenanceMessage: string;
   homepageBannerText: string;
+  creatorEarlyAccessHours?: number;
 }
 
 export interface AdminCategory {
@@ -117,7 +119,46 @@ export interface PendingVerifications {
   pendingBrands: { _id: string; user: { name: string; email: string; avatarUrl?: string }; companyName: string; industry?: string }[];
 }
 
-/** Admin-only endpoints — Agency approval, plus core moderation/analytics. */
+export interface AdminSubscriptionPlan {
+  _id: string;
+  name: string;
+  slug: string;
+  appliesTo: 'creator' | 'brand';
+  price: number;
+  billingCycle: 'monthly' | 'yearly';
+  isDefault: boolean;
+  isActive: boolean;
+  sortOrder: number;
+  razorpayPlanId: string;
+  proposalLimit: number | null;
+  extraProposalCost: number;
+  platformFeePercent: number;
+  campaignAccessTier: 'lite_only' | 'all';
+  hasEarlyAccess: boolean;
+  campaignPostLimit: number | null;
+  campaignVisibilityTier: 'lite' | 'exclusive';
+  canSetApplicantLimit: boolean;
+  isFeaturedListing: boolean;
+  description: string;
+  perks: string[];
+  createdAt: string;
+}
+
+export interface AdminUserSubscription {
+  _id: string;
+  user: string;
+  plan: AdminSubscriptionPlan;
+  status: 'active' | 'past_due' | 'cancelled' | 'expired';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  razorpaySubscriptionId: string;
+  cancelAtPeriodEnd: boolean;
+  proposalsUsedThisCycle: number;
+  campaignsPostedThisCycle: number;
+}
+
+/** Admin-only endpoints — Agency approval, core moderation/analytics, and
+ * subscription plan management (Creator Lite/Pro, Brand Lite/Pro/Elite). */
 export const adminApi = {
   setAgencyPassword: (id: string, password: string) =>
     apiClient.patch<ApiEnvelope<{ email: string; password: string }>>(`/admin/agencies/${id}/set-password`, { password }).then((r) => r.data.data),
@@ -209,4 +250,24 @@ export const adminApi = {
 
   changeMyPassword: (currentPassword: string, newPassword: string) =>
     apiClient.patch('/users/me/password', { currentPassword, newPassword }),
+
+  // --- Subscription plans (Creator Lite/Pro, Brand Lite/Pro/Elite) ---
+
+  listSubscriptionPlans: (appliesTo?: 'creator' | 'brand') =>
+    apiClient.get<ApiEnvelope<AdminSubscriptionPlan[]>>('/admin/subscription-plans', { params: { appliesTo } }).then((r) => r.data.data),
+
+  createSubscriptionPlan: (payload: Partial<AdminSubscriptionPlan>) =>
+    apiClient.post<ApiEnvelope<AdminSubscriptionPlan>>('/admin/subscription-plans', payload).then((r) => r.data.data),
+
+  updateSubscriptionPlan: (id: string, payload: Partial<AdminSubscriptionPlan>) =>
+    apiClient.patch<ApiEnvelope<AdminSubscriptionPlan>>(`/admin/subscription-plans/${id}`, payload).then((r) => r.data.data),
+
+  deleteSubscriptionPlan: (id: string) =>
+    apiClient.delete<ApiEnvelope<AdminSubscriptionPlan>>(`/admin/subscription-plans/${id}`).then((r) => r.data.data),
+
+  getUserSubscription: (userId: string) =>
+    apiClient.get<ApiEnvelope<AdminUserSubscription | null>>(`/admin/users/${userId}/subscription`).then((r) => r.data.data),
+
+  setUserSubscription: (userId: string, payload: { planId: string; periodDays?: number }) =>
+    apiClient.patch<ApiEnvelope<AdminUserSubscription>>(`/admin/users/${userId}/subscription`, payload).then((r) => r.data.data),
 };

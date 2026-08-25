@@ -23,6 +23,7 @@ import AdminSiteSettings from '@/pages/AdminSiteSettings';
 import AdminUserDetail from '@/pages/AdminUserDetail';
 import AdminAdmins from '@/pages/AdminAdmins';
 import AdminChangePassword from '@/pages/AdminChangePassword';
+import AdminSubscriptionPlans from '@/pages/AdminSubscriptionPlans';
 
 function useAuthHydration() {
   const dispatch = useAppDispatch();
@@ -88,6 +89,7 @@ export default function App() {
         <Route path="/settings" element={<Shell><PageTransition><AdminSiteSettings /></PageTransition></Shell>} />
         <Route path="/admins" element={<Shell><PageTransition><AdminAdmins /></PageTransition></Shell>} />
         <Route path="/change-password" element={<Shell><PageTransition><AdminChangePassword /></PageTransition></Shell>} />
+        <Route path="/subscription-plans" element={<Shell><PageTransition><AdminSubscriptionPlans /></PageTransition></Shell>} />
       </Routes>
     </AnimatePresence>
   );

@@ -1,6 +1,6 @@
 import { type PropsWithChildren, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users2, ShieldCheck, Building2, Percent, ShieldAlert, Receipt, Tag, Flag, Wallet, Megaphone, Settings, UserCog, KeyRound, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, Users2, ShieldCheck, Building2, Percent, ShieldAlert, Receipt, Tag, Flag, Wallet, Megaphone, Settings, UserCog, KeyRound, LogOut, Menu, Layers } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/cn';
@@ -14,6 +14,7 @@ const NAV = [
   { href: '/escrow-disputes', label: 'Escrow Disputes', icon: ShieldAlert },
   { href: '/transactions', label: 'Transactions', icon: Receipt },
   { href: '/categories', label: 'Categories', icon: Tag },
+  { href: '/subscription-plans', label: 'Subscription Plans', icon: Layers },
   { href: '/moderation', label: 'Content Moderation', icon: Flag },
   { href: '/withdrawals', label: 'Withdrawals', icon: Wallet },
   { href: '/broadcast', label: 'Broadcast', icon: Megaphone },
