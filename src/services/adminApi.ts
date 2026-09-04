@@ -46,10 +46,16 @@ export interface DisputedCampaign {
 
 export interface AdminWithdrawal {
   _id: string;
-  amount: number;
+  amount: number; // requested (gross) amount
+  // Fee fields added alongside the initiated/processing/completed/
+  // rejected status rename (Point: platform fee now applies at
+  // withdrawal time, not earn time — see wallet.service.js).
+  platformFeePercent: number;
+  platformFee: number;
+  netPayoutAmount: number;
   payoutMethod: 'upi' | 'bank';
   payoutDetails: string;
-  status: 'pending' | 'paid' | 'rejected';
+  status: 'initiated' | 'processing' | 'completed' | 'rejected';
   adminNote?: string;
   createdAt: string;
   user?: { name: string; email: string; role: string };
@@ -163,7 +169,7 @@ export const adminApi = {
   setAgencyPassword: (id: string, password: string) =>
     apiClient.patch<ApiEnvelope<{ email: string; password: string }>>(`/admin/agencies/${id}/set-password`, { password }).then((r) => r.data.data),
 
-  listAgencies: (status?: 'pending' | 'verified' | 'rejected' | 'unverified') =>
+  listAgencies: (status?: 'pending' | 'verified' | 'rejected') =>
     apiClient.get<ApiEnvelope<ApiAgency[]>>('/admin/agencies', { params: { status } }).then((r) => r.data.data),
 
   verifyAgency: (id: string, decision: 'verified' | 'rejected', rejectionReason?: string) =>
@@ -193,11 +199,9 @@ export const adminApi = {
   listDisputedEscrows: () =>
     apiClient.get<ApiEnvelope<DisputedCampaign[]>>('/admin/disputes/escrow').then((r) => r.data.data),
 
-  releaseEscrow: (campaignId: string) =>
-    apiClient.post(`/admin/escrow/${campaignId}/release`).then((r) => r.data.data),
+  releaseEscrow: (campaignId: string) => apiClient.post(`/admin/escrow/${campaignId}/release`).then((r) => r.data.data),
 
-  refundEscrow: (campaignId: string) =>
-    apiClient.post(`/admin/escrow/${campaignId}/refund`).then((r) => r.data.data),
+  refundEscrow: (campaignId: string) => apiClient.post(`/admin/escrow/${campaignId}/refund`).then((r) => r.data.data),
 
   listAllTransactions: (params: { type?: string; status?: string; page?: number; limit?: number } = {}) =>
     apiClient
@@ -227,6 +231,11 @@ export const adminApi = {
 
   listWithdrawals: (status?: string) =>
     apiClient.get<ApiEnvelope<AdminWithdrawal[]>>('/admin/withdrawals', { params: { status } }).then((r) => r.data.data),
+
+  // NEW — was missing entirely, which is why "Mark Processing" crashed
+  // with a TypeError before ever sending a request.
+  markWithdrawalProcessing: (id: string) =>
+    apiClient.patch<ApiEnvelope<AdminWithdrawal>>(`/admin/withdrawals/${id}/processing`).then((r) => r.data.data),
 
   markWithdrawalPaid: (id: string) => apiClient.patch<ApiEnvelope<AdminWithdrawal>>(`/admin/withdrawals/${id}/paid`).then((r) => r.data.data),
 
@@ -262,11 +271,9 @@ export const adminApi = {
   updateSubscriptionPlan: (id: string, payload: Partial<AdminSubscriptionPlan>) =>
     apiClient.patch<ApiEnvelope<AdminSubscriptionPlan>>(`/admin/subscription-plans/${id}`, payload).then((r) => r.data.data),
 
-  deleteSubscriptionPlan: (id: string) =>
-    apiClient.delete<ApiEnvelope<AdminSubscriptionPlan>>(`/admin/subscription-plans/${id}`).then((r) => r.data.data),
+  deleteSubscriptionPlan: (id: string) => apiClient.delete<ApiEnvelope<AdminSubscriptionPlan>>(`/admin/subscription-plans/${id}`).then((r) => r.data.data),
 
-  getUserSubscription: (userId: string) =>
-    apiClient.get<ApiEnvelope<AdminUserSubscription | null>>(`/admin/users/${userId}/subscription`).then((r) => r.data.data),
+  getUserSubscription: (userId: string) => apiClient.get<ApiEnvelope<AdminUserSubscription | null>>(`/admin/users/${userId}/subscription`).then((r) => r.data.data),
 
   setUserSubscription: (userId: string, payload: { planId: string; periodDays?: number }) =>
     apiClient.patch<ApiEnvelope<AdminUserSubscription>>(`/admin/users/${userId}/subscription`, payload).then((r) => r.data.data),
